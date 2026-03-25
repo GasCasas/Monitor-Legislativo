@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Monitor Legislativo — Câmara e Senado</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --navy:       #0b1c30;
+      --navy-mid:   #162e4a;
+      --navy-light: #1e4472;
+      --green:      #009c3b;
+      --green-mid:  #2db464;
+      --green-light:#6fd49a;
+      --blue:       #002f8a;
+      --blue-mid:   #1a5ac8;
+      --blue-light: #5a8fd8;
+      --gold:       #c9a84c;
+      --gold-light: #e2c97e;
+      --cream:      #f5f0e8;
+      --mist:       #bdd4eb;
+      --white:      #ffffff;
+      --dim:        #7a9ab8;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--navy); color: var(--white); overflow-x: hidden; }
+
+    /* ── Thin flag-colored top border on the whole page ── */
+    body::before {
+      content: '';
+      position: fixed; top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, var(--green) 0%, var(--gold) 45%, var(--blue-mid) 100%);
+      z-index: 200;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 3px; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.1rem 3rem;
+      background: rgba(11,28,48,0.9);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .nav-brand { display: flex; align-items: center; gap: 0.8rem; text-decoration: none; }
+    .nav-icon { width: 38px; height: 38px; flex-shrink: 0; }
+    .nav-name {
+      font-family: 'Playfair Display', serif;
+      font-weight: 700; font-size: 1.05rem; color: var(--white); line-height: 1.1;
+    }
+    .nav-name span { display: block; font-size: 0.7rem; font-family: 'DM Sans', sans-serif; font-weight: 300; letter-spacing: 0.12em; color: var(--dim); text-transform: uppercase; }
+    nav a.cta {
+      background: var(--green); color: var(--white);
+      font-weight: 500; font-size: 0.85rem; padding: 0.55rem 1.4rem;
+      border-radius: 4px; text-decoration: none; letter-spacing: 0.02em;
+      transition: background 0.2s;
+    }
+    nav a.cta:hover { background: var(--green-mid); }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh; display: flex; align-items: center;
+      padding: 8rem 3rem 5rem; position: relative; overflow: hidden;
+    }
+    /* Angled green/blue half-tone background */
+    .hero::after {
+      content: '';
+      position: absolute; top: 0; right: 0;
+      width: 55vw; height: 100%;
+      background: linear-gradient(135deg, rgba(0,47,138,0.12) 0%, rgba(0,156,59,0.06) 100%);
+      clip-path: polygon(20% 0%, 100% 0%, 100% 100%, 0% 100%);
+      pointer-events: none;
+    }
+
+    .hero-content { position: relative; z-index: 1; max-width: 620px; }
+
+    /* Dual badge: Câmara (green) + Senado (blue) */
+    .hero-badges {
+      display: flex; gap: 0.5rem; margin-bottom: 2rem;
+      opacity: 0; animation: fadeUp 0.6s 0.1s forwards;
+    }
+    .badge {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      font-size: 0.7rem; font-weight: 500; letter-spacing: 0.1em;
+      text-transform: uppercase; padding: 0.35rem 0.8rem; border-radius: 2px;
+    }
+    .badge-green { background: rgba(0,156,59,0.15); border: 1px solid rgba(0,156,59,0.35); color: var(--green-light); }
+    .badge-blue  { background: rgba(26,90,200,0.15); border: 1px solid rgba(26,90,200,0.35); color: var(--blue-light); }
+    .badge::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: currentColor; opacity: 0.8; }
+
+    .hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.8rem, 5.5vw, 4.8rem);
+      font-weight: 900; line-height: 1.06; letter-spacing: -0.02em;
+      margin-bottom: 1.5rem;
+      opacity: 0; animation: fadeUp 0.7s 0.25s forwards;
+    }
+    .hero h1 .hl-green { color: var(--green-mid); }
+    .hero h1 .hl-blue  { color: var(--blue-light); }
+    .hero h1 .hl-gold  { color: var(--gold); }
+
+    .hero-desc {
+      font-size: 1.05rem; line-height: 1.8; color: var(--mist);
+      font-weight: 300; max-width: 500px; margin-bottom: 2.5rem;
+      opacity: 0; animation: fadeUp 0.7s 0.4s forwards;
+    }
+
+    .hero-actions {
+      display: flex; gap: 1rem; flex-wrap: wrap;
+      opacity: 0; animation: fadeUp 0.7s 0.55s forwards;
+    }
+    .btn-green {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: var(--green); color: var(--white);
+      font-weight: 500; font-size: 0.95rem; padding: 0.85rem 2rem;
+      border-radius: 4px; text-decoration: none; transition: background 0.2s, transform 0.2s;
+    }
+    .btn-green:hover { background: var(--green-mid); transform: translateY(-1px); }
+    .btn-ghost {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      border: 1px solid rgba(255,255,255,0.18); color: var(--mist);
+      font-size: 0.95rem; padding: 0.85rem 2rem; border-radius: 4px;
+      text-decoration: none; transition: border-color 0.2s, color 0.2s;
+    }
+    .btn-ghost:hover { border-color: var(--green); color: var(--green-light); }
+
+    /* ── Mockup visual ── */
+    .hero-visual {
+      position: absolute; right: -1%; top: 50%; transform: translateY(-50%);
+      width: 50vw; max-width: 720px; z-index: 1;
+      opacity: 0; animation: fadeLeft 0.9s 0.6s forwards;
+    }
+    .mockup-frame {
+      background: var(--navy-mid); border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow: 0 40px 100px rgba(0,0,0,0.55);
+    }
+    .mockup-bar {
+      background: rgba(0,0,0,0.2); padding: 0.75rem 1rem;
+      display: flex; align-items: center; gap: 0.5rem;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .dot { width: 9px; height: 9px; border-radius: 50%; }
+    .dot-r { background: #ff5f57; } .dot-y { background: #ffbd2e; } .dot-g { background: #28c840; }
+    .mockup-url {
+      margin-left: 0.4rem; background: rgba(255,255,255,0.07);
+      border-radius: 4px; padding: 0.25rem 0.8rem;
+      font-size: 0.68rem; color: var(--dim); flex: 1; max-width: 300px;
+    }
+    .mockup-body { padding: 1.4rem; }
+    .mockup-title { font-family: 'Playfair Display', serif; font-size: 1.05rem; color: var(--white); margin-bottom: 1rem; }
+    .mockup-tabs { display: flex; gap: 0.4rem; margin-bottom: 1.1rem; flex-wrap: wrap; }
+    .tab-item { background: rgba(255,255,255,0.05); border-radius: 3px; padding: 0.28rem 0.65rem; font-size: 0.68rem; color: var(--dim); }
+    .tab-item.green { background: rgba(0,156,59,0.15); color: var(--green-light); border: 1px solid rgba(0,156,59,0.3); }
+    .tab-item.blue  { background: rgba(26,90,200,0.15); color: var(--blue-light);  border: 1px solid rgba(26,90,200,0.3); }
+
+    /* Two-column house cards */
+    .house-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; margin-bottom: 0.8rem; }
+    .house-card { border-radius: 7px; padding: 0.8rem; }
+    .house-card.camara { background: rgba(0,156,59,0.1); border: 1px solid rgba(0,156,59,0.25); }
+    .house-card.senado { background: rgba(26,90,200,0.1); border: 1px solid rgba(26,90,200,0.25); }
+    .house-label { font-size: 0.62rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.3rem; }
+    .house-card.camara .house-label { color: var(--green-light); }
+    .house-card.senado .house-label { color: var(--blue-light); }
+    .house-num { font-family: 'Playfair Display', serif; font-size: 1.6rem; font-weight: 700; color: var(--white); }
+    .house-sub { font-size: 0.62rem; color: var(--dim); margin-top: 0.15rem; }
+
+    .mockup-pl { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07); border-radius: 6px; padding: 0.75rem; }
+    .pl-top { display: flex; justify-content: space-between; margin-bottom: 0.3rem; }
+    .pl-tipo { font-size: 0.63rem; font-weight: 500; letter-spacing: 0.07em; text-transform: uppercase; color: var(--gold); }
+    .pl-ok   { font-size: 0.58rem; background: rgba(0,156,59,0.18); color: var(--green-light); border-radius: 8px; padding: 0.1rem 0.45rem; }
+    .pl-ementa { font-size: 0.68rem; color: var(--mist); line-height: 1.5; }
+
+    /* ── SPLIT SECTION: Câmara + Senado ── */
+    .split-section {
+      display: grid; grid-template-columns: 1fr 1fr;
+      position: relative; z-index: 1;
+    }
+    .split-camara {
+      padding: 5rem 3rem 5rem 3rem;
+      background: rgba(0,156,59,0.04);
+      border-top: 1px solid rgba(0,156,59,0.15);
+    }
+    .split-senado {
+      padding: 5rem 3rem 5rem 2.5rem;
+      background: rgba(26,90,200,0.04);
+      border-top: 1px solid rgba(26,90,200,0.15);
+      border-left: 1px solid rgba(255,255,255,0.05);
+    }
+    .split-icon {
+      width: 48px; height: 48px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem; margin-bottom: 1.2rem;
+    }
+    .split-icon.g { background: rgba(0,156,59,0.15); border: 1px solid rgba(0,156,59,0.3); }
+    .split-icon.b { background: rgba(26,90,200,0.15); border: 1px solid rgba(26,90,200,0.3); }
+    .split-label  { font-size: 0.68rem; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 0.5rem; }
+    .split-label.g { color: var(--green-light); }
+    .split-label.b { color: var(--blue-light); }
+    .split-title { font-family: 'Playfair Display', serif; font-size: 1.4rem; font-weight: 700; margin-bottom: 0.8rem; line-height: 1.2; }
+    .split-desc { font-size: 0.875rem; line-height: 1.7; color: var(--dim); font-weight: 300; }
+    .split-tipos { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 1rem; }
+    .tipo-pill {
+      font-size: 0.7rem; font-weight: 500; border-radius: 12px;
+      padding: 0.2rem 0.6rem; letter-spacing: 0.05em;
+    }
+    .tipo-pill.g { background: rgba(0,156,59,0.12); color: var(--green-light); border: 1px solid rgba(0,156,59,0.25); }
+    .tipo-pill.b { background: rgba(26,90,200,0.12); color: var(--blue-light);  border: 1px solid rgba(26,90,200,0.25); }
+
+    /* ── FEATURES ── */
+    .features {
+      position: relative; z-index: 1;
+      padding: 6rem 3rem;
+      border-top: 1px solid rgba(255,255,255,0.05);
+    }
+    .section-label {
+      font-size: 0.7rem; font-weight: 500; letter-spacing: 0.15em;
+      text-transform: uppercase; color: var(--gold); margin-bottom: 0.8rem;
+      display: flex; align-items: center; gap: 0.6rem;
+    }
+    .section-label::before { content: ''; width: 22px; height: 1px; background: var(--gold); }
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+      font-weight: 700; line-height: 1.15; max-width: 500px; margin-bottom: 3rem;
+    }
+    .features-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+      gap: 1px; background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; overflow: hidden;
+    }
+    .feature-card {
+      background: var(--navy); padding: 1.8rem;
+      transition: background 0.22s;
+    }
+    .feature-card:hover { background: var(--navy-mid); }
+    .feature-icon {
+      width: 42px; height: 42px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem; margin-bottom: 1rem;
+      background: rgba(201,168,76,0.1); border: 1px solid rgba(201,168,76,0.2);
+    }
+    .feature-card.g .feature-icon { background: rgba(0,156,59,0.12); border-color: rgba(0,156,59,0.25); }
+    .feature-card.b .feature-icon { background: rgba(26,90,200,0.12); border-color: rgba(26,90,200,0.25); }
+    .feature-title { font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .feature-desc { font-size: 0.85rem; line-height: 1.65; color: var(--dim); font-weight: 300; }
+
+    /* ── PALETTE ── */
+    .palette-section {
+      z-index: 1; position: relative; padding: 5rem 3rem;
+      background: rgba(255,255,255,0.015);
+      border-top: 1px solid rgba(255,255,255,0.05);
+    }
+    .palette-grid { display: flex; gap: 0.8rem; flex-wrap: wrap; margin-top: 2.5rem; }
+    .swatch { flex: 1; min-width: 110px; border-radius: 8px; overflow: hidden; border: 1px solid rgba(255,255,255,0.07); }
+    .swatch-color { height: 80px; }
+    .swatch-info { background: rgba(255,255,255,0.04); padding: 0.65rem; }
+    .swatch-name { font-size: 0.78rem; font-weight: 500; margin-bottom: 0.2rem; }
+    .swatch-hex  { font-size: 0.68rem; color: var(--dim); font-family: monospace; }
+    .swatch-role { font-size: 0.63rem; color: var(--dim); margin-top: 0.15rem; }
+
+    /* ── CTA ── */
+    .cta-section {
+      position: relative; z-index: 1; padding: 6rem 3rem; text-align: center; overflow: hidden;
+    }
+    .cta-section::before {
+      content: ''; position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%,-50%);
+      width: 700px; height: 350px;
+      background: radial-gradient(ellipse, rgba(0,156,59,0.06) 0%, rgba(26,90,200,0.05) 50%, transparent 70%);
+      pointer-events: none;
+    }
+    .cta-section h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 4vw, 3rem); font-weight: 700; line-height: 1.15; margin-bottom: 1.2rem;
+    }
+    .cta-section p {
+      color: var(--mist); font-size: 1rem; font-weight: 300;
+      margin-bottom: 2.5rem; max-width: 400px; margin-left: auto; margin-right: auto;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      position: relative; z-index: 1; padding: 2rem 3rem;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;
+    }
+    footer p { font-size: 0.78rem; color: var(--dim); }
+    footer .flag-strip {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 0.72rem; color: var(--dim);
+    }
+    footer .c-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp   { from { opacity:0; transform:translateY(20px) }  to { opacity:1; transform:none } }
+    @keyframes fadeLeft { from { opacity:0; transform:translateY(-50%) translateX(36px) } to { opacity:1; transform:translateY(-50%) translateX(0) } }
+    .reveal { opacity: 0; transform: translateY(22px); transition: opacity 0.65s ease, transform 0.65s ease; }
+    .reveal.visible { opacity: 1; transform: none; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 960px) {
+      nav { padding: 1rem 1.5rem; }
+      .hero { padding: 7rem 1.5rem 4rem; }
+      .hero-visual { display: none; }
+      .split-section { grid-template-columns: 1fr; }
+      .split-senado { border-left: none; border-top: 1px solid rgba(255,255,255,0.05); }
+      .split-camara, .split-senado { padding: 3.5rem 1.5rem; }
+      .features, .palette-section, .cta-section { padding: 4rem 1.5rem; }
+      footer { padding: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <a class="nav-brand" href="#">
+      <!-- Inline Congresso icon -->
+      <svg class="nav-icon" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="38" height="38" rx="8" fill="#162e4a"/>
+        <rect x="0" y="0" width="38" height="2.5" rx="1" fill="none"/>
+        <!-- Plinth -->
+        <rect x="4"  y="31" width="30" height="3" rx="1" fill="#c9a84c" opacity="0.8"/>
+        <rect x="6"  y="27" width="26" height="4" rx="1" fill="#c9a84c" opacity="0.3"/>
+        <!-- Building body -->
+        <rect x="6"  y="19" width="26" height="8" rx="1" fill="#1a3a5c"/>
+        <!-- Senado dome (blue, left) -->
+        <path d="M6,19 A8,9 0 0,1 22,19 Z" fill="#1a5ac8" opacity="0.85"/>
+        <!-- Câmara dome (green, right, flat) -->
+        <ellipse cx="28" cy="18" rx="8" ry="3.5" fill="#009c3b" opacity="0.85"/>
+        <!-- Towers -->
+        <rect x="17" y="10" width="3" height="9" rx="1" fill="#dce8f5" opacity="0.8"/>
+        <rect x="22" y="10" width="3" height="9" rx="1" fill="#dce8f5" opacity="0.8"/>
+        <!-- Tower caps -->
+        <rect x="16" y="8"  width="5" height="2" rx="0.5" fill="#c9a84c" opacity="0.7"/>
+        <rect x="21" y="8"  width="5" height="2" rx="0.5" fill="#c9a84c" opacity="0.7"/>
+      </svg>
+      <span class="nav-name">
+        Monitor Legislativo
+        <span>Câmara &amp; Senado Federal</span>
+      </span>
+    </a>
+    <a class="cta" href="https://gascasas-monitor-legislativo.streamlit.app" target="_blank">Acessar o App →</a>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-content">
+      <div class="hero-badges">
+        <span class="badge badge-green">Câmara dos Deputados</span>
+        <span class="badge badge-blue">Senado Federal</span>
+      </div>
+
+      <h1>
+        O Congresso<br/>
+        Nacional em<br/>
+        <span class="hl-green">suas</span> <span class="hl-gold">mãos</span>
+      </h1>
+
+      <p class="hero-desc">
+        Monitore PLs, PECs, MPVs e muito mais — da Câmara e do Senado. Receba alertas de tramitação e analise proposições com inteligência artificial, direto no seu celular ou computador.
+      </p>
+
+      <div class="hero-actions">
+        <a class="btn-green" href="https://gascasas-monitor-legislativo.streamlit.app" target="_blank">
+          🏛️ Abrir o Monitor
+        </a>
+        <a class="btn-ghost" href="https://github.com/GasCasas/monitor-legislativo" target="_blank">
+          Ver no GitHub
+        </a>
+      </div>
+    </div>
+
+    <!-- Mockup -->
+    <div class="hero-visual">
+      <div class="mockup-frame">
+        <div class="mockup-bar">
+          <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+          <div class="mockup-url">gascasas-monitor-legislativo.streamlit.app</div>
+        </div>
+        <div class="mockup-body">
+          <div class="mockup-title">🏛️ Monitor Legislativo</div>
+          <div class="mockup-tabs">
+            <div class="tab-item green">🔍 Buscar</div>
+            <div class="tab-item">📋 Monitorados</div>
+            <div class="tab-item">📊 Dashboard</div>
+            <div class="tab-item blue">🤖 Análise IA</div>
+            <div class="tab-item">📥 Exportar</div>
+            <div class="tab-item">⚙️ Config</div>
+          </div>
+
+          <!-- House stats -->
+          <div class="house-row">
+            <div class="house-card camara">
+              <div class="house-label">Câmara</div>
+              <div class="house-num">7</div>
+              <div class="house-sub">proposições monitoradas</div>
+            </div>
+            <div class="house-card senado">
+              <div class="house-label">Senado</div>
+              <div class="house-num">5</div>
+              <div class="house-sub">proposições monitoradas</div>
+            </div>
+          </div>
+
+          <!-- PL card -->
+          <div class="mockup-pl">
+            <div class="pl-top">
+              <div class="pl-tipo">PL 2630/2020 · Câmara</div>
+              <div class="pl-ok">Atualizado</div>
+            </div>
+            <div class="pl-ementa">PL das Fake News — Institui a Lei Brasileira de Liberdade, Responsabilidade e Transparência na Internet.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SPLIT: Câmara × Senado -->
+  <div class="split-section reveal">
+    <div class="split-camara">
+      <div class="split-icon g">🟢</div>
+      <div class="split-label g">Câmara dos Deputados</div>
+      <h3 class="split-title">513 deputados.<br/>Um app para acompanhar todos.</h3>
+      <p class="split-desc">Busque qualquer proposição da Câmara por número, ano e tipo. Acompanhe a tramitação em tempo real com dados da API oficial da Câmara dos Deputados.</p>
+      <div class="split-tipos">
+        <span class="tipo-pill g">PL</span>
+        <span class="tipo-pill g">PEC</span>
+        <span class="tipo-pill g">PLP</span>
+        <span class="tipo-pill g">PDL</span>
+        <span class="tipo-pill g">MPV</span>
+        <span class="tipo-pill g">REQ</span>
+        <span class="tipo-pill g">RIC</span>
+      </div>
+    </div>
+    <div class="split-senado">
+      <div class="split-icon b">🔵</div>
+      <div class="split-label b">Senado Federal</div>
+      <h3 class="split-title">81 senadores.<br/>Tramitação e documentos completos.</h3>
+      <p class="split-desc">Acompanhe matérias do Senado com acesso a documentos, textos e informações complementares diretamente via API do Senado Federal.</p>
+      <div class="split-tipos">
+        <span class="tipo-pill b">PL</span>
+        <span class="tipo-pill b">PEC</span>
+        <span class="tipo-pill b">PRS</span>
+        <span class="tipo-pill b">PDS</span>
+        <span class="tipo-pill b">MSF</span>
+        <span class="tipo-pill b">SCD</span>
+        <span class="tipo-pill b">DVS</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- FEATURES -->
+  <section class="features">
+    <div class="reveal">
+      <div class="section-label">Funcionalidades</div>
+      <h2 class="section-title">Tudo para acompanhar o Congresso Nacional</h2>
+    </div>
+    <div class="features-grid reveal">
+      <div class="feature-card g">
+        <div class="feature-icon">🔍</div>
+        <div class="feature-title">Busca avançada</div>
+        <p class="feature-desc">Encontre qualquer proposição por número, ano ou palavra-chave. Funciona para Câmara e Senado, com suporte a mais de 15 tipos de matéria.</p>
+      </div>
+      <div class="feature-card b">
+        <div class="feature-icon">🔔</div>
+        <div class="feature-title">Alertas automáticos</div>
+        <p class="feature-desc">Receba notificações por e-mail ou WhatsApp assim que uma proposição monitorada tiver mudança de situação ou tramitação.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🤖</div>
+        <div class="feature-title">Análise com IA</div>
+        <p class="feature-desc">Powered by Claude (Anthropic). Resumo executivo, impacto social, riscos jurídicos e linha do tempo — em segundos, a partir do texto da ementa.</p>
+      </div>
+      <div class="feature-card g">
+        <div class="feature-icon">📄</div>
+        <div class="feature-title">Documentos do Senado</div>
+        <p class="feature-desc">Acesse diretamente os documentos e textos oficiais das matérias do Senado Federal, com links diretos para download.</p>
+      </div>
+      <div class="feature-card b">
+        <div class="feature-icon">📊</div>
+        <div class="feature-title">Dashboard integrado</div>
+        <p class="feature-desc">Visualize a distribuição das proposições por casa e tipo, e acompanhe o histórico de todas as mudanças já detectadas.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📥</div>
+        <div class="feature-title">Exportação</div>
+        <p class="feature-desc">Gere relatórios em Excel, PDF ou CSV com as proposições monitoradas — ideal para uso em escritórios, consultorias e assessorias.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- PALETTE -->
+  <section class="palette-section">
+    <div class="reveal">
+      <div class="section-label">Identidade Visual</div>
+      <h2 class="section-title">Paleta de cores</h2>
+    </div>
+    <div class="palette-grid reveal">
+      <div class="swatch">
+        <div class="swatch-color" style="background:#0b1c30;"></div>
+        <div class="swatch-info">
+          <div class="swatch-name" style="color:#dce8f5;">Azul Brasília</div>
+          <div class="swatch-hex">#0b1c30</div>
+          <div class="swatch-role">Fundo principal</div>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background:#009c3b;"></div>
+        <div class="swatch-info">
+          <div class="swatch-name" style="color:#fff;">Verde Câmara</div>
+          <div class="swatch-hex">#009c3b</div>
+          <div class="swatch-role">Câmara dos Deputados</div>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background:#1a5ac8;"></div>
+        <div class="swatch-info">
+          <div class="swatch-name" style="color:#fff;">Azul Senado</div>
+          <div class="swatch-hex">#1a5ac8</div>
+          <div class="swatch-role">Senado Federal</div>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background:#c9a84c;"></div>
+        <div class="swatch-info">
+          <div class="swatch-name" style="color:#0b1c30;">Ouro Institucional</div>
+          <div class="swatch-hex">#c9a84c</div>
+          <div class="swatch-role">Acento principal</div>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background:#e2c97e;"></div>
+        <div class="swatch-info">
+          <div class="swatch-name" style="color:#0b1c30;">Ouro Claro</div>
+          <div class="swatch-hex">#e2c97e</div>
+          <div class="swatch-role">Textos em destaque</div>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background:#bdd4eb;"></div>
+        <div class="swatch-info">
+          <div class="swatch-name" style="color:#0b1c30;">Névoa</div>
+          <div class="swatch-hex">#bdd4eb</div>
+          <div class="swatch-role">Textos secundários</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-section">
+    <div class="reveal">
+      <h2>Acompanhe o Congresso<br/>a partir de agora</h2>
+      <p>Gratuito, sem cadastro. Funciona no navegador de qualquer dispositivo — celular, tablet ou computador.</p>
+      <a class="btn-green" href="https://gascasas-monitor-legislativo.streamlit.app" target="_blank">
+        🏛️ Acessar o Monitor Legislativo
+      </a>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <p>© 2026 <strong style="color:#e2c97e">Monitor Legislativo</strong> — Desenvolvido com Python &amp; Streamlit</p>
+    <div class="flag-strip">
+      <div class="c-dot" style="background:#009c3b;"></div>
+      <span>Câmara dos Deputados</span>
+      <div class="c-dot" style="background:#1a5ac8; margin-left:6px;"></div>
+      <span>Senado Federal</span>
+      <span style="margin-left:8px; color:#c9a84c;">· Brasília, DF</span>
+    </div>
+  </footer>
+
+  <script>
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); }
+      });
+    }, { threshold: 0.08 });
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+  </script>
+</body>
+</html>
