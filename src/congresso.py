@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Módulo de integração com matérias do Congresso Nacional.
 MPV, VET, MSG, PLV e outras matérias que tramitam no CN.

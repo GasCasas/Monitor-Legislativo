@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Módulo de notificação por e-mail.
 Usa o servidor SMTP do Gmail para enviar alertas de atualização.

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Módulo de histórico de mudanças detectadas.
 Salva e recupera todas as atualizações encontradas pelo agendador.

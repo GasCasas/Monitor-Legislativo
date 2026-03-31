@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Módulo de integração com a API de Dados Abertos da Câmara dos Deputados.
 Documentação: https://dadosabertos.camara.leg.br/swagger/openapi.html

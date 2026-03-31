@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Módulo de monitoramento: salva proposições acompanhadas e detecta atualizações.
 """

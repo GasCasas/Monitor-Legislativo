@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Módulo de notificação via WhatsApp usando o CallMeBot.
 """

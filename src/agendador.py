@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Módulo de agendamento automático de verificações.
 Roda em background e verifica atualizações a cada X horas configuradas.

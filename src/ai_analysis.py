@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Módulo de análise com IA usando a API da Anthropic (Claude).
 """

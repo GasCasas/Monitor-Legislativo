@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Módulo de exportação de relatórios em Excel, PDF e CSV.
 """

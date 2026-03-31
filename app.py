@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import streamlit as st
 from src import camara, senado, ai_analysis, exporter
 from src.monitor import carregar_monitorados, salvar_monitorados, checar_atualizacoes
@@ -14,7 +15,11 @@ st.set_page_config(
     layout="wide",
 )
 
-iniciar_agendador()
+# Agendador desativado na nuvem (use localmente)
+try:
+    iniciar_agendador()
+except Exception:
+    pass
 
 st.markdown("""
 <link rel="manifest" href="/app/static/manifest.json">
