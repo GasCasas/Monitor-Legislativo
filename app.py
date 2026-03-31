@@ -5,6 +5,7 @@ from src.agendador import carregar_config, salvar_config, iniciar_agendador
 from src.notificador import testar_email
 from src.historico import carregar_historico, registrar_mudancas, limpar_historico
 from src.whatsapp import TEMPLATE_PADRAO
+from src import congresso
 import pandas as pd
 
 st.set_page_config(
@@ -57,11 +58,13 @@ with aba[0]:
                 "PL", "PEC", "PLP", "PDL", "PDC", "PRS", "PDS",
                 "REQ", "RQS", "RIC", "MSC", "MSF", "MPV",
                 "INC", "EMC", "SCD", "DVS",
+                "── Congresso Nacional ──",
+                "VET", "MSG", "PLV", "RCN", "DCN",
             ])
         with col4:
-            casa = st.selectbox("Casa", ["Câmara", "Senado"])
+            casa = st.selectbox("Casa", ["Câmara", "Senado", "Congresso Nacional"])
 
-        tipo_busca = None if tipo == "Todos (busca automática)" else tipo
+        tipo_busca = None if tipo in ["Todos (busca automática)", "── Congresso Nacional ──"] else tipo
 
         if st.button("🔍 Buscar", use_container_width=True):
             if not numero or not ano:
@@ -73,8 +76,10 @@ with aba[0]:
                 with st.spinner(msg):
                     if casa == "Câmara":
                         dados = camara.buscar_proposicao(numero, ano, tipo_busca)
-                    else:
+                    elif casa == "Senado":
                         dados = senado.buscar_proposicao(numero, ano, tipo_busca)
+                    else:
+                        dados = congresso.buscar_proposicao(numero, ano, tipo_busca)
                 if not dados:
                     st.error(f"Proposição {numero}/{ano} não encontrada na {casa}. "
                              "Verifique o número, ano e tipo.")
@@ -87,7 +92,7 @@ with aba[0]:
         with col1:
             tema = st.text_input("Palavra-chave ou tema", placeholder="Ex: educação, meio ambiente, saúde...")
         with col2:
-            casa_tema = st.selectbox("Casa", ["Câmara", "Senado"], key="casa_tema")
+            casa_tema = st.selectbox("Casa", ["Câmara", "Senado", "Congresso Nacional"], key="casa_tema")
 
         if st.button("🔍 Buscar por tema", use_container_width=True):
             if not tema:
@@ -96,8 +101,10 @@ with aba[0]:
                 with st.spinner(f"Buscando proposições sobre '{tema}'..."):
                     if casa_tema == "Câmara":
                         resultados = camara.buscar_por_tema(tema, itens=50)
-                    else:
+                    elif casa_tema == "Senado":
                         resultados = senado.buscar_por_tema(tema, itens=50)
+                    else:
+                        resultados = congresso.buscar_por_tema(tema, itens=50)
 
                 if not resultados:
                     st.info(f"Nenhuma proposição encontrada para '{tema}'.")
@@ -114,7 +121,11 @@ with aba[0]:
         col_a, col_b = st.columns([3, 1])
         with col_a:
             tipo_exib = dados.get("tipo", "PL")
-            st.subheader(f"{tipo_exib} {dados.get('numero')}/{dados.get('ano')}")
+            tipo_desc = dados.get("tipo_descricao", "")
+            header = f"{tipo_exib} {dados.get('numero')}/{dados.get('ano')}"
+            if tipo_desc and tipo_desc != tipo_exib:
+                header += f" — {tipo_desc}"
+            st.subheader(header)
             st.write(f"**Ementa:** {dados.get('ementa', 'N/D')}")
             st.write(f"**Autor:** {dados.get('autor', 'N/D')}")
             st.write(f"**Situação:** {dados.get('situacao', 'N/D')}")
@@ -143,8 +154,10 @@ with aba[0]:
             with st.spinner("Carregando tramitação..."):
                 if casa_atual == "Câmara":
                     tramitacao = camara.buscar_tramitacao(dados.get("id"))
-                else:
+                elif casa_atual == "Senado":
                     tramitacao = senado.buscar_tramitacao(dados.get("id"))
+                else:
+                    tramitacao = congresso.buscar_tramitacao(dados.get("id"))
             if tramitacao:
                 df = pd.DataFrame(tramitacao)
                 st.dataframe(df, use_container_width=True, hide_index=True)
@@ -152,9 +165,10 @@ with aba[0]:
                 st.info("Nenhuma tramitação encontrada.")
 
         with det_tabs[1]:
-            if casa_atual == "Senado":
+            if casa_atual in ["Senado", "Congresso Nacional"]:
+                mod_docs = senado if casa_atual == "Senado" else congresso
                 with st.spinner("Carregando documentos..."):
-                    docs = senado.buscar_documentos(dados.get("id"))
+                    docs = mod_docs.buscar_documentos(dados.get("id"))
                 if docs:
                     for doc in docs:
                         link = doc.get("Link", "")
@@ -169,9 +183,13 @@ with aba[0]:
                 st.info("Documentos disponíveis apenas para matérias do Senado.")
 
         with det_tabs[2]:
-            if casa_atual == "Senado":
+            if casa_atual in ["Senado", "Congresso Nacional"]:
                 with st.spinner("Carregando informações..."):
                     info = senado.buscar_info_complementar(dados.get("id"))
+                # Prazo de vigência para MPV
+                if casa_atual == "Congresso Nacional" and dados.get("prazo_vigencia"):
+                    st.info(f"⏳ **Prazo de vigência:** {dados.get('prazo_vigencia')}")
+                    info = info or {}
                 if info:
                     for chave_i, valor in info.items():
                         if valor:
