@@ -17,7 +17,7 @@ TIPOS_PROPOSICAO = [
 ]
 
 
-def buscar_proposicao(numero: str, ano: str, tipo: str = None) -> dict | None:
+def buscar_proposicao(numero: str, ano: str, tipo: str = None) -> dict:
     """
     Busca uma proposição pelo número, ano e opcionalmente tipo.
     Se tipo não for informado, tenta todos os tipos até encontrar.
@@ -98,7 +98,7 @@ def _buscar_autor(prop_id: int) -> str:
     return "N/D"
 
 
-def buscar_tramitacao(prop_id: int) -> list[dict]:
+def buscar_tramitacao(prop_id: int) -> list:
     """Retorna o histórico de tramitação de uma proposição."""
     try:
         resp = requests.get(

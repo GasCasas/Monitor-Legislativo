@@ -35,7 +35,7 @@ def _get_json(url, params=None):
     return None
 
 
-def buscar_proposicao(numero: str, ano: str, tipo: str = None) -> dict | None:
+def buscar_proposicao(numero: str, ano: str, tipo: str = None) -> dict:
     tipos_busca = ALIASES.get(tipo, [tipo]) if tipo and tipo != "Todos" else TIPOS_PROPOSICAO
 
     for t in tipos_busca:
@@ -225,7 +225,7 @@ def _traduzir_situacao(sigla: str) -> str:
     return situacoes.get(sigla.upper().strip(), sigla)
 
 
-def buscar_tramitacao(codigo: str) -> list[dict]:
+def buscar_tramitacao(codigo: str) -> list:
     """Retorna tramitação completa do Senado.
     
     Estrutura correta da API:
@@ -275,7 +275,7 @@ def buscar_tramitacao(codigo: str) -> list[dict]:
         return []
 
 
-def buscar_documentos(codigo: str) -> list[dict]:
+def buscar_documentos(codigo: str) -> list:
     """Retorna os documentos (textos) da matéria."""
     try:
         data = _get_json(f"{BASE_URL}/materia/textos/{codigo}")
@@ -326,7 +326,7 @@ def buscar_info_complementar(codigo: str) -> dict:
     }
 
 
-def buscar_por_tema(tema: str, itens: int = 20) -> list[dict]:
+def buscar_por_tema(tema: str, itens: int = 20) -> list:
     """Busca proposições por palavra-chave na ementa."""
     try:
         data = _get_json(f"{BASE_URL}/materia/pesquisa/lista",

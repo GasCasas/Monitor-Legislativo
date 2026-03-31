@@ -36,7 +36,7 @@ def _get_json(url, params=None):
     return None
 
 
-def buscar_proposicao(numero: str, ano: str, tipo: str = None) -> dict | None:
+def buscar_proposicao(numero: str, ano: str, tipo: str = None) -> dict:
     """
     Busca uma proposição do Congresso Nacional pelo número, ano e tipo.
     Se tipo não informado, tenta todos os tipos CN.
@@ -140,7 +140,7 @@ def _buscar_info_mpv(detalhe: dict) -> dict:
     }
 
 
-def buscar_tramitacao(codigo: str) -> list[dict]:
+def buscar_tramitacao(codigo: str) -> list:
     """Retorna tramitação completa de uma matéria do CN."""
     resultado = []
     try:
@@ -178,7 +178,7 @@ def buscar_tramitacao(codigo: str) -> list[dict]:
         return []
 
 
-def buscar_documentos(codigo: str) -> list[dict]:
+def buscar_documentos(codigo: str) -> list:
     """Retorna documentos da matéria."""
     try:
         data = _get_json(f"{BASE_URL}/materia/textos/{codigo}")
@@ -202,7 +202,7 @@ def buscar_documentos(codigo: str) -> list[dict]:
         return []
 
 
-def buscar_por_tema(tema: str, itens: int = 20) -> list[dict]:
+def buscar_por_tema(tema: str, itens: int = 20) -> list:
     """Busca proposições do CN por palavra-chave na ementa."""
     resultado = []
     for t in list(TIPOS_CN.keys()):
