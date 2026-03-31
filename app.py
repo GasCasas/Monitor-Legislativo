@@ -1,23 +1,39 @@
 # -*- coding: utf-8 -*-
 import streamlit as st
 
-st.title("Teste")
-st.write("App funcionando!")
+st.set_page_config(page_title="Teste", layout="wide")
+st.title("Monitor Legislativo - Teste")
 
 try:
-    from src import camara, senado, ai_analysis, exporter
-    st.success("src imports OK")
+    import sys, os
+    sys.path.insert(0, '/mount/src/monitor-legislativo')
+    st.write(f"Python: {sys.version}")
+    st.write(f"Diretório: {os.getcwd()}")
+    st.write(f"Arquivos: {os.listdir('.')}")
+    st.success("OK básico!")
 except Exception as e:
-    st.error(f"Erro src: {e}")
+    st.error(f"Erro: {e}")
+
+try:
+    from src import camara
+    st.success("camara OK")
+except Exception as e:
+    st.error(f"camara ERRO: {e}")
+
+try:
+    from src import senado
+    st.success("senado OK")
+except Exception as e:
+    st.error(f"senado ERRO: {e}")
 
 try:
     from src import congresso
     st.success("congresso OK")
 except Exception as e:
-    st.error(f"Erro congresso: {e}")
+    st.error(f"congresso ERRO: {e}")
 
 try:
-    from src.agendador import carregar_config, salvar_config, iniciar_agendador
+    from src.agendador import iniciar_agendador
     st.success("agendador OK")
 except Exception as e:
-    st.error(f"Erro agendador: {e}")
+    st.error(f"agendador ERRO: {e}")
